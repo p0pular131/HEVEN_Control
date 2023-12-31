@@ -129,12 +129,15 @@ def calc_target_index(state, cx, cy):
     fy = state.y + L * np.sin(state.yaw)
 
     # Search nearest point index
+    # target_idx는 그냥 가까운점으로 지정
     dx = [fx - icx for icx in cx]
     dy = [fy - icy for icy in cy]
     d = np.hypot(dx, dy)
     target_idx = np.argmin(d)
 
     # Project RMS error onto front axle vector
+    # 차량의 전륜축과 목표 지점까지의 직선 최단거리가 e값이므로
+    # yaw값의 normal vector를 구하고, 이를 목표지점까지 이루는 vector와 내적
     front_axle_vec = [-np.cos(state.yaw + np.pi / 2),
                       -np.sin(state.yaw + np.pi / 2)]
     error_front_axle = np.dot([dx[target_idx], dy[target_idx]], front_axle_vec)
@@ -168,7 +171,7 @@ def main():
     target_idx, _ = calc_target_index(state, cx, cy)
 
     while max_simulation_time >= time and last_idx > target_idx:
-        ai = pid_control(target_speed, state.v)
+        ai = pid_control(target_speed, state.v) # 종방향 가속도 P제어
         di, target_idx = stanley_control(state, cx, cy, cyaw, target_idx)
         state.update(ai, di)
 
